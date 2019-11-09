@@ -182,6 +182,7 @@ public class CameraFragment extends Fragment
     private String cameraId = CAMERA_BACK;
 
     private Switch modeSwitch;
+    private Switch selfieSwitch;
 
     private CaptureRequest.Builder mPreviewRequestBuilder;
     private CaptureRequest mPreviewRequest;
@@ -309,8 +310,15 @@ public class CameraFragment extends Fragment
                 startActivity(intent1);
                 getActivity().overridePendingTransition(0, 0);
                 onDestroy();
-
-
+            }
+        });
+        selfieSwitch = (Switch) getView().findViewById(R.id.switch_selfie);
+        selfieSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                Intent intent1 = new Intent(getActivity(), AugmentedFacesActivity.class);
+                startActivity(intent1);
+                getActivity().overridePendingTransition(0, 0);
+                onDestroy();
             }
         });
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
@@ -319,6 +327,7 @@ public class CameraFragment extends Fragment
     public void onDestroy() {
         super.onDestroy();
         modeSwitch.setChecked(false);
+        selfieSwitch.setChecked(false);
     }
 
     @Override

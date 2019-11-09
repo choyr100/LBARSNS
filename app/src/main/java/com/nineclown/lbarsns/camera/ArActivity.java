@@ -315,7 +315,7 @@ public class ArActivity extends AppCompatActivity implements Scene.OnUpdateListe
                         view.getView().setMinimumWidth(100);
                         TextView headline = view.getView().findViewById(R.id.imagetext);
 
-                        headline.setText(Integer.toString(a));
+                        headline.setText(contentDTOs.get(a).getExplain());
                         ImageView imageView = view.getView().findViewById(R.id.imageview);
 
 

@@ -31,15 +31,27 @@
 
         </FrameLayout>
 
+
+
         <Switch
             android:id="@+id/switch_focus_mode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
             android:checked="false"
             android:text="@string/AR_Mode"
             android:textColor="#ffffff" />
+
+        <Switch
+            android:id="@+id/switch_selfie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:checked="false"
+            android:text="@string/AR_SELFIE"
+            android:textColor="#ffffff" />
+
 
 
     </RelativeLayout>

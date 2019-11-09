@@ -11,8 +11,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.renderscript.Matrix4f;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -231,7 +233,7 @@ public class ArActivity extends AppCompatActivity implements Scene.OnUpdateListe
                     if(anchorNode1.getChildren().get(0).getChildren().size()==0) break;
                     Vector3 vector3 = anchorNode1.getChildren().get(0).getWorldPosition();
                     anchorNode1.getChildren().get(0).getChildren().get(0).setWorldRotation(Quaternion.lookRotation(new Vector3(vec3.x - vector3.x, vec3.y - (vector3.y + 0.25f), vec3.z - vector3.z), new Vector3(0f, 1f, 0f)));
-
+                    
                 }
             }
 
@@ -325,6 +327,7 @@ public class ArActivity extends AppCompatActivity implements Scene.OnUpdateListe
                         viewPanel.setLocalPosition(new Vector3(0.f,0.25f, 0f));
                         viewPanel.setEnabled(!viewPanel.isEnabled());
                         Glide.with(this).load(contentDTOs.get(a).getImageUrl()).into(imageView);
+
                     });
                     andy.setOnTapListener(((hitTestResult, motionEvent) -> {
                         viewPanel.setEnabled(!viewPanel.isEnabled());

@@ -45,6 +45,10 @@ public class FaceArFragment extends ArFragment {
     return EnumSet.of(Session.Feature.FRONT_CAMERA);
   }
 
+  public static FaceArFragment newInstance() {
+    return new FaceArFragment();
+  }
+
   /**
    * Override to turn off planeDiscoveryController. Plane trackables are not supported with the
    * front camera.

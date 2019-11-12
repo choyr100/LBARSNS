@@ -15,12 +15,22 @@
  */
 package com.nineclown.lbarsns.camera;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -43,12 +53,19 @@ import com.google.ar.sceneform.ux.AugmentedFaceNode;
 import com.google.ar.sceneform.ux.TransformableNode;
 import com.nineclown.lbarsns.R;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import static java.security.AccessController.getContext;
 
 
 /**
@@ -61,7 +78,7 @@ public class AugmentedFacesActivity extends AppCompatActivity {
     private static final double MIN_OPENGL_VERSION = 3.0;
 
     private FaceArFragment arFragment;
-
+    private static final int PERMISSIONS_REQUEST = 100;
     private ModelRenderable faceRegionsRenderable;
 
     private final HashMap<AugmentedFaceNode, AugmentedFace> faceNodeMap = new HashMap<>();
@@ -82,10 +99,13 @@ public class AugmentedFacesActivity extends AppCompatActivity {
     private static final int FACE_MESH_RENDER_PRIORITY =
             Math.max(Renderable.RENDER_PRIORITY_FIRST, Renderable.RENDER_PRIORITY_DEFAULT - 1);
 
+    private Button button;
+
     public AugmentedFacesActivity() {
         faceMeshDefinition =
                 RenderableDefinition.builder().setVertices(vertices).setSubmeshes(submeshes).build();
     }
+
 
     @Override
     @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
@@ -101,6 +121,31 @@ public class AugmentedFacesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_face_mesh);
         arFragment = (FaceArFragment) getSupportFragmentManager().findFragmentById(R.id.face_fragment);
 
+//        int AFL_permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+//        int WES_permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//        int ACL_permission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+//        int C_permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+//
+//        if (AFL_permission != PackageManager.PERMISSION_GRANTED
+//                || WES_permission != PackageManager.PERMISSION_GRANTED
+//                || ACL_permission != PackageManager.PERMISSION_GRANTED
+//                || C_permission != PackageManager.PERMISSION_GRANTED) {
+//            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+//                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+//                    Manifest.permission.ACCESS_COARSE_LOCATION,
+//                    Manifest.permission.CAMERA}, PERMISSIONS_REQUEST);
+//        }
+//
+//        if (savedInstanceState == null) {
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.face_fragment, FaceArFragment.newInstance())
+//                    .commit();
+//        }
+
+        button = (Button) findViewById(R.id.picture2);
+        button.setOnClickListener((View v) -> {
+            takeScreenshot();
+        });
         // Load the face regions renderable.
         // This is a skinned model that renders 3D objects mapped to the regions of the augmented face.
         ModelRenderable.builder().setSource(this, R.raw.head)
@@ -276,5 +321,43 @@ public class AugmentedFacesActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    private void takeScreenshot() {
+        String TimeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+
+        try {
+            // image naming and path  to include sd card  appending name you choose for file
+            // 저장할 주소 + 이름
+            String mPath = Environment.getExternalStorageDirectory().toString() + "/Pictures/Lbarsns/" + TimeStamp + ".jpg";
+
+            // create bitmap screen capture
+            // 화면 이미지 만들기
+            View v1 = getWindow().getDecorView().getRootView();
+            v1.setDrawingCacheEnabled(true);
+            Bitmap bitmap = Bitmap.createBitmap(v1.getDrawingCache());
+            v1.setDrawingCacheEnabled(false);
+
+            // 이미지 파일 생성
+            File imageFile = new File(mPath);
+            FileOutputStream outputStream = new FileOutputStream(imageFile);
+            int quality = 100;
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+            outputStream.flush();
+            outputStream.close();
+
+            openScreenshot(imageFile);
+        } catch (Throwable e) {
+            // Several error may come out with file handling or OOM
+            e.printStackTrace();
+        }
+    }
+
+    private void openScreenshot(File imageFile) {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        Uri uri = FileProvider.getUriForFile(this,"com.nineclown.lbarsns.fileprovider", imageFile);
+        intent.setDataAndType(uri, "image/*");
+        startActivity(intent);
     }
 }

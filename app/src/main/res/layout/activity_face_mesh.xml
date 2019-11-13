@@ -19,6 +19,7 @@
     android:layout_height="match_parent"
     tools:context="camera.AugmentedFacesActivity">
 
+
   <fragment android:name="com.nineclown.lbarsns.camera.FaceArFragment"
       android:id="@+id/face_fragment"
       android:layout_width="match_parent"
@@ -56,6 +57,13 @@
         android:text="@string/picture" />
 
   </FrameLayout>
-
-
+    <Switch
+        android:id="@+id/AR_Texture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:checked="false"
+        android:text="@string/AR_Texture"
+        android:textColor="#ffffff" />
 </FrameLayout>
+

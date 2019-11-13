@@ -48,6 +48,7 @@ import com.google.ar.sceneform.rendering.Material;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.Renderable;
 import com.google.ar.sceneform.rendering.RenderableDefinition;
+import com.google.ar.sceneform.rendering.Texture;
 import com.google.ar.sceneform.rendering.Vertex;
 import com.google.ar.sceneform.ux.AugmentedFaceNode;
 import com.google.ar.sceneform.ux.TransformableNode;
@@ -87,6 +88,7 @@ public class AugmentedFacesActivity extends AppCompatActivity {
     private ModelRenderable graduationCapRegionsRenderable;
 
     private Switch selfieSwitch;
+    private Switch arTexture;
 
     private Quaternion rotationQuaternionY;
 
@@ -100,6 +102,9 @@ public class AugmentedFacesActivity extends AppCompatActivity {
             Math.max(Renderable.RENDER_PRIORITY_FIRST, Renderable.RENDER_PRIORITY_DEFAULT - 1);
 
     private Button button;
+
+    private Texture foxfaceMeshTexture;
+    private Texture faceMeshTexture;
 
     public AugmentedFacesActivity() {
         faceMeshDefinition =
@@ -179,6 +184,16 @@ public class AugmentedFacesActivity extends AppCompatActivity {
                             return true;
                         });
 
+        Texture.builder()
+                .setSource(this, R.drawable.fox_face_mesh_texture)
+                .build()
+                .thenAccept(texture -> foxfaceMeshTexture = texture);
+
+        Texture.builder()
+                .setSource(this, R.drawable.face_mesh_texture)
+                .build()
+                .thenAccept(texture -> faceMeshTexture = texture);
+
 
         selfieSwitch = (Switch) findViewById(R.id.switch_selfie);
         selfieSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -186,6 +201,40 @@ public class AugmentedFacesActivity extends AppCompatActivity {
             } else {
                 finish();
                 overridePendingTransition(0, 0);
+            }
+        });
+
+        arTexture = (Switch) findViewById(R.id.AR_Texture);
+        arTexture.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked){
+                Iterator<Map.Entry<AugmentedFaceNode, AugmentedFace>> iter =
+                        faceNodeMap.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<AugmentedFaceNode, AugmentedFace> entry = iter.next();
+                    AugmentedFace face = entry.getValue();
+                    if (face.getTrackingState() == TrackingState.TRACKING) {
+                        AugmentedFaceNode faceNode = entry.getKey();
+                        Log.i("PAUSED",faceNode.getName());
+                        if(faceNode.getName().equals("face")){
+                            faceNode.setFaceMeshTexture(foxfaceMeshTexture);
+                        }
+                    }
+                }
+            }
+            else{
+                Iterator<Map.Entry<AugmentedFaceNode, AugmentedFace>> iter =
+                        faceNodeMap.entrySet().iterator();
+                while (iter.hasNext()) {
+                    Map.Entry<AugmentedFaceNode, AugmentedFace> entry = iter.next();
+                    AugmentedFace face = entry.getValue();
+                    if (face.getTrackingState() == TrackingState.TRACKING) {
+                        AugmentedFaceNode faceNode = entry.getKey();
+                        Log.i("PAUSED",faceNode.getName());
+                        if(faceNode.getName().equals("face")){
+                            faceNode.setFaceMeshTexture(faceMeshTexture);
+                        }
+                    }
+                }
             }
         });
 
@@ -221,6 +270,12 @@ public class AugmentedFacesActivity extends AppCompatActivity {
                             Log.i("PAUSED","PAUSED");
                         }
                         if (!faceNodeMap.containsValue(face)) {
+
+                            AugmentedFaceNode fnode = new AugmentedFaceNode(face);
+                            fnode.setParent(scene);
+                            fnode.setFaceMeshTexture(faceMeshTexture);
+                            fnode.setName("face");
+
                             AugmentedFaceNode node = new AugmentedFaceNode(face);
                             node.setParent(scene);
                             node.setLocalScale(new Vector3(0.22f, 0.22f, 0.22f));
@@ -234,9 +289,16 @@ public class AugmentedFacesActivity extends AppCompatActivity {
                             TransformableNode headNode = new TransformableNode(arFragment.getTransformationSystem());
                             headNode.setParent(faceNode);
 
+                            Material mat = headRegionsRenderable.getMaterial();
                             headRegionsRenderable.setMaterial(faceMeshOccluderMaterial);
                             headRegionsRenderable.setRenderPriority(FACE_MESH_RENDER_PRIORITY);
                             headNode.setRenderable(headRegionsRenderable);
+                            headNode.setOnTapListener(((hitTestResult, motionEvent) -> {
+                                if(headRegionsRenderable.getMaterial().equals(mat)){
+                                    headRegionsRenderable.setMaterial(faceMeshOccluderMaterial);
+                                }
+                                else headRegionsRenderable.setMaterial(mat);
+                            }));
 
                             headNode.setLocalPosition(new Vector3(0f, -0.95f, -0.3f));
 
@@ -256,6 +318,7 @@ public class AugmentedFacesActivity extends AppCompatActivity {
 
                             faceNodeMap.put(node, face);
                             faceNodeMap.put(faceNode, face);
+                            faceNodeMap.put(fnode, face);
                         }
                     }
 

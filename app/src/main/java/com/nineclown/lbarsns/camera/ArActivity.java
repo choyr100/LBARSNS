@@ -319,7 +319,6 @@ public class ArActivity extends AppCompatActivity implements Scene.OnUpdateListe
                         headline.setText(contentDTOs.get(a).getExplain());
                         ImageView imageView = view.getView().findViewById(R.id.imageview);
 
-
                         viewPanel.setRenderable(view);
                         viewPanel.setParent(andy);
 
